@@ -40,8 +40,8 @@ function resolve(P) {
   switch (P.kind) {
     case "fuchi": return /断った/.test(q) ? "取り消せない（説明を断った）" : /わざと言わなかった/.test(q) ? CAN : null;
     case "karyo": { const k = (q.match(/、([^、]+?を[^、]+?)買った/) || [])[1]; return TOO[k] ? CAN : FINE[k] ? "取り消せない（ふつうの量）" : null; }
-    case "kikan": { const y = num(q, /(\d+)年前に契約/), m = months((q.match(/気づいたのは(.+?前)/) || [])[1] || ""); return Number.isNaN(y + m) ? null : m < 12 && y < 5 ? "まだ取り消せる" : "もう取り消せない"; }
-    case "reikan": { const y = num(q, /(\d+)年前に買った/), t = (q.match(/気づいたのは(\d+)年(半)?前/) || []); if (!t[1]) return null; const m = +t[1] + (t[2] ? 0.5 : 0); return m < 3 && y < 10 ? "まだ取り消せる" : "もう取り消せない"; }
+    case "kikan": { const y = num(q, /(\d+)年前に契約/), m = months((q.match(/気づいたのは(.+?前)/) || [])[1] || ""); return Number.isNaN(y + m) || m > y * 12 ? null : m < 12 && y < 5 ? "まだ取り消せる" : "もう取り消せない"; }
+    case "reikan": { const y = months((q.match(/あおられ、(.+?前)に買った/) || [])[1] || ""), m = months((q.match(/気づいたのは(.+?前)/) || [])[1] || ""); return Number.isNaN(y + m) || m > y ? null : m < 36 && y < 120 ? "まだ取り消せる" : "もう取り消せない"; }
     case "chien": { const p = num(q, /年(\d+)%の違約金/); return p > 14.6 ? "年14.6%をこえる部分は無効" : p <= 14.6 ? "年14.6%以内なので無効にならない" : null; }
     case "ichibu": return /わざと、またはひどい不注意/.test(q) ? "このときは条項が使えない（無効）" : /ふつうの小さな不注意/.test(q) ? "この決まりでは無効にならない" : null;
     case "jigyosha": return /パン屋|会社の仕事|美容室/.test(q) ? "消費者にあたらない" : /家で使う|趣味|家族の食事/.test(q) ? "消費者にあたる" : null;
